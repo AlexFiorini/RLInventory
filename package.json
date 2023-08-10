@@ -1,0 +1,17 @@
+{
+  "name": "rlinventory",
+  "version": "1.0.0",
+  "description": "",
+  "main": "js/main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "electron": "^25.4.0",
+    "tabulator-tables": "^5.5.1",
+    "v8-compile-cache": "^2.3.0"
+  }
+}

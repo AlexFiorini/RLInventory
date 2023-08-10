@@ -1,0 +1,13 @@
+/* style.css */
+
+/* Stile per la modalità chiara */
+.light-mode {
+    background-color: #ffffff;
+    color: #000000;
+}
+
+/* Stile per la modalità notte */
+.dark-mode {
+    background-color: #1e1e1e;
+    color: #ffffff;
+}
