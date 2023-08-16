@@ -1,7 +1,7 @@
 {
   "name": "rlinventory",
   "version": "1.0.0",
-  "description": "",
+  "description": "App to view all your tradable items in Rocket League",
   "main": "js/main.js",
   "scripts": {
     "start": "electron-forge start",
@@ -9,7 +9,7 @@
     "make": "electron-forge make"
   },
   "keywords": [],
-  "author": "",
+  "author": "AlexFiorini",
   "license": "ISC",
   "dependencies": {
     "electron-squirrel-startup": "^1.0.0",
