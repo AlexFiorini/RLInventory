@@ -4,15 +4,26 @@
   "description": "",
   "main": "js/main.js",
   "scripts": {
-    "start": "electron ."
+    "start": "electron-forge start",
+    "package": "electron-forge package",
+    "make": "electron-forge make"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "electron": "^25.4.0",
+    "electron-squirrel-startup": "^1.0.0",
     "puppeteer": "^21.0.2",
     "tabulator-tables": "^5.5.1",
     "v8-compile-cache": "^2.3.0"
+  },
+  "devDependencies": {
+    "@electron-forge/cli": "^6.3.0",
+    "@electron-forge/maker-deb": "^6.3.0",
+    "@electron-forge/maker-rpm": "^6.3.0",
+    "@electron-forge/maker-squirrel": "^6.3.0",
+    "@electron-forge/maker-zip": "^6.3.0",
+    "@electron-forge/plugin-auto-unpack-natives": "^6.3.0",
+    "electron": "^25.5.0"
   }
 }

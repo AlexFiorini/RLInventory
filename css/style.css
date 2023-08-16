@@ -11,3 +11,14 @@
     background-color: #1e1e1e;
     color: #ffffff;
 }
+
+@font-face {
+    font-family: Font1;
+    src: url('./1060bab20f18b5c2-s.p.woff2') format('woff2');
+    /* Other font properties here */
+}
+
+* {
+    font-family: Font1, sans-serif;
+    /* Other styling */
+}

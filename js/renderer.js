@@ -36,13 +36,13 @@ ipcRenderer.send('get-json-data');
 
 function createTable() {
     const table = new Tabulator("#inventory-table", {
-        layout: "fitColumns",
+        layout: "fitDataStretch",
         responsiveLayout: "collapse",
         columns: [
             { title: "Name", field: "name", headerFilter: "input", sorter: "string", resizable: false},
             { title: "Slot", field: "slot", headerFilter: "input", sorter: "string", resizable: false},
             { title: "Paint", field: "paint", headerFilter: "input", sorter: "string", formatter: paintFormatter, resizable: false},
-            { title: "Rank Label", field: "rank_label", headerFilter: "input", sorter: "string", resizable: false},
+            { title: "Certification", field: "rank_label", headerFilter: "input", sorter: "string", resizable: false},
             { title: "Quality", field: "quality", headerFilter: "input", sorter: "string", resizable: false},
             { title: "Special Edition", field: "special_edition", headerFilter: "input", sorter: "string", resizable: false}
         ],
