@@ -45,15 +45,3 @@ app.whenReady().then(() => {
 app.on('window-all-closed', function () {
     if (process.platform !== 'darwin') app.quit();
 });
-
-ipcMain.on('get-json-data', (event) => {
-    const appDataPath = app.getPath('appData');
-    const jsonFilePath = path.join(appDataPath, 'bakkesmod/bakkesmod/data/inventory.json');
-    fs.readFile(jsonFilePath, 'utf8', (err, jsonData) => {
-        if (err) {
-            console.error('Error reading JSON data:', err);
-        } else {
-            event.reply('json-data', JSON.parse(jsonData));
-        }
-    });
-});
