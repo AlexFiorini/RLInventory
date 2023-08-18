@@ -21,7 +21,6 @@ let inventory;
 ipcRenderer.on('json-data', (event, jsonData) => {
     if (Array.isArray(jsonData)) {
         inventory = jsonData.filter(item => item.tradeable === 'true');
-        console.log(inventory);
 
         // Creazione della tabella solo dopo aver filtrato i dati
         createTable();
@@ -48,12 +47,6 @@ function createTable() {
         ],
     });
 
-    const debouncedTableUpdate = debounce((items) => {
-        for (const item of items) {
-            table.addRow(item);
-        }
-    }, 300);
-
     table.on("tableBuilt", async function(){
         const itemsToAdd = [];
         for (const item of inventory) {
@@ -61,7 +54,7 @@ function createTable() {
                 itemsToAdd.push(item);
             }
         }
-        debouncedTableUpdate(itemsToAdd);
+        table.setData(itemsToAdd);
     });
 }
 
@@ -95,20 +88,4 @@ const colorBackgrounds = {
     'Purple': 'linear-gradient(135deg,#e974fd,#820d96 80%)',
     'Gold': 'linear-gradient(135deg,#EAF0A3,#9BA25F 80%)',
     'Unpainted': ''
-}
-
-function debounce(func, delay) {
-    let timeoutId;
-    const itemsQueue = [];
-
-    return function(...args) {
-        clearTimeout(timeoutId);
-
-        itemsQueue.push(args[0]); // Assuming that the first argument is the item to be added
-        
-        timeoutId = setTimeout(() => {
-            func.call(this, itemsQueue);
-            itemsQueue.length = 0; // Clear the queue after processing
-        }, delay);
-    };
 }
