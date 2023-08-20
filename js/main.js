@@ -9,6 +9,7 @@ function createWindow() {
         width: 1012,
         height: 600,
         resizable: true,
+        icon: path.join(__dirname, '../img/icon.ico'),
         webPreferences: {
             nodeIntegration: true,
             contextIsolation: false,
@@ -23,7 +24,7 @@ function createWindow() {
 
     const appDataPath = app.getPath('appData'); // Get the application data directory
     const jsonFilePath = path.join(appDataPath, 'bakkesmod/bakkesmod/data/inventory.json');
-    
+    console.log(path.join(__dirname, '../img/favicon-16x16.ico'));
     // Read the JSON data from the specified file path
     fs.readFile(jsonFilePath, 'utf8', (err, jsonData) => {
         if (err) {
