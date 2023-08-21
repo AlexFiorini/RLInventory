@@ -29,10 +29,22 @@ function createWindow() {
     fs.readFile(jsonFilePath, 'utf8', (err, jsonData) => {
         if (err) {
             console.error('Error reading JSON data:', err);
+            if (err.code === 'ENOENT') {
+                console.error('JSON doesnt exist');
+            }
         } else {
-            mainWindow.webContents.on('did-finish-load', () => {
-                mainWindow.webContents.send('json-data', JSON.parse(jsonData).inventory);
-            });
+            try {
+                const parsedData = JSON.parse(jsonData);
+                if (Array.isArray(parsedData.inventory)) {
+                    mainWindow.webContents.on('did-finish-load', () => {
+                        mainWindow.webContents.send('json-data', parsedData.inventory);
+                    });
+                } else {
+                    console.error('JSON data is not in the expected format.');
+                }
+            } catch (jsonParseError) {
+                console.error('Error parsing JSON data:', jsonParseError);
+            }
         }
     });
 }
