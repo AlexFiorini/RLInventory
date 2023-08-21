@@ -1,4 +1,5 @@
 const { ipcRenderer } = require('electron');
+const URL = "https://op.market/ref/thedevilofgames";
 
 let inventory;
 
@@ -43,3 +44,7 @@ function createTable() {
         table.setData(itemsToAdd);
     });
 }
+
+document.getElementById('support').addEventListener('click', function() {
+    require('electron').shell.openExternal(URL);
+});
