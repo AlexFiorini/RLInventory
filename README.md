@@ -24,4 +24,10 @@ You can choose basically every filter you want to use, and you can search betwee
 - Quality
 - Special Edition (If it's an attribute. If it's in the name you have to search for it in Name).
 ---
+## Screenshots
+[![Screenshot 1](https://github.com/[username]/[reponame]/blob/[branch]/image.jpg?raw=true)]
+![Screenshot 2](https://github.com/[username]/[reponame]/blob/[branch]/image.jpg?raw=true)
+![Screenshot 3](https://github.com/[username]/[reponame]/blob/[branch]/image.jpg?raw=true)
+![Screenshot 4](https://github.com/[username]/[reponame]/blob/[branch]/image.jpg?raw=true)
+
 If you like the software please consider using the in-app button "Support me!". Thanks to whoever will use it :)
