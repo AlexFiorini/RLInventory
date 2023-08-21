@@ -5,7 +5,7 @@
 ### MAKE SURE YOU HAVE BAKKESMOD INSTALLED AND BETTER INVENTORY EXPORT: https://bakkesplugins.com/plugins/view/155
 ### Also make sure your bakkesmod folder is in %appdata%/Roaming/bakkesmod/bakkesmod
 
-Here the link to download the app: https://drive.google.com/file/d/18aw4csVoKrPGIqol76fh-Z7Wx_O9zGz8/view?usp=sharing
+Here the link to download the app: https://mega.nz/file/9bM2hA6a#q8tH_ecjDOVqFXDbbzHntXNVtT1BDczcu0p25s6Uwtk
 
 If you prefer to build it yourself: 
 - Clone the repo
