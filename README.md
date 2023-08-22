@@ -28,8 +28,8 @@ You can choose basically every filter you want to use, and you can search betwee
 - Open Bakkesmod and launch Rocket League
 - Press F2
 - Go to plugins
-- Click on "BetterInventoryExport"
-- Click on "Export to .json"
+- Click on "Better Inventory Export"
+- Click on "Dump to .json"
 - Launch RLInventory
 - Enjoy your tradable inventory!
 ---
