@@ -1,6 +1,6 @@
 {
   "name": "rlinventory",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "A software to view all your tradable items in Rocket League",
   "main": "js/main.js",
   "scripts": {
