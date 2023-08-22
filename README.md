@@ -32,6 +32,7 @@ You can choose basically every filter you want to use, and you can search betwee
 - Click on "Dump to .json"
 - Launch RLInventory
 - Enjoy your tradable inventory!
+If the software doesn't show your inventory, you can load it by clicking on "Choose file" and by going to your Bakkesmod directory, then to "data" and you'll find "inventory.json"
 ---
 ## Screenshots
 ![Screenshot 1](https://github.com/AlexFiorini/RLInventory/blob/main/img/Screenshot_1.png?raw=true)
