@@ -24,6 +24,15 @@ You can choose basically every filter you want to use, and you can search betwee
 - Quality
 - Special Edition (If it's an attribute. If it's in the name you have to search for it in Name).
 ---
+## How do I use it?
+- Open Bakkesmod and launch Rocket League
+- Press F2
+- Go to plugins
+- Click on "BetterInventoryExport"
+- Click on "Export to .json"
+- Launch RLInventory
+- Enjoy your tradable inventory!
+---
 ## Screenshots
 ![Screenshot 1](https://github.com/AlexFiorini/RLInventory/blob/main/img/Screenshot_1.png?raw=true)
 ![Screenshot 2](https://github.com/AlexFiorini/RLInventory/blob/main/img/Screenshot_2.png?raw=true)
