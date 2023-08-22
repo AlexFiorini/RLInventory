@@ -11,7 +11,7 @@ If you prefer to build it yourself:
 - Clone the repo
 - ```npm install```
 - ```npm run make```
-- Check out folder
+- Check the folder named "out" 
 - Enjoy the app!
 ---
 ## How does it work?
