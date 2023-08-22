@@ -24,7 +24,6 @@ function createWindow() {
 
     const appDataPath = app.getPath('appData'); // Get the application data directory
     const jsonFilePath = path.join(appDataPath, 'bakkesmod/bakkesmod/data/inventory.json');
-    console.log(path.join(__dirname, '../img/favicon-16x16.ico'));
     // Read the JSON data from the specified file path
     fs.readFile(jsonFilePath, 'utf8', (err, jsonData) => {
         if (err) {
@@ -48,6 +47,22 @@ function createWindow() {
         }
     });
 }
+
+ipcMain.on('json-data', (event, data) => {
+    try {
+        const parsedDatafile = JSON.parse(data);
+        const jsonString = JSON.stringify(parsedDatafile);
+        if (Array.isArray(jsonString)) {
+            mainWindow.webContents.on('did-finish-load', () => {
+                mainWindow.webContents.send('json-data', jsonString.inventory);
+            });
+        } else {
+            console.error('JSON data is not in the expected format.');
+        }
+    } catch (jsonParseError) {
+        console.error('Error parsing JSON data:', jsonParseError);
+    }
+});
 
 app.whenReady().then(() => {
     createWindow();
