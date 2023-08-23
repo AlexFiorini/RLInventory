@@ -110,3 +110,58 @@ document.getElementById('fileInput').addEventListener('change', async (event) =>
 
     reader.readAsText(selectedFile);
 });
+
+document.getElementById('prices').addEventListener('click', function() {
+    console.log('Prezzario in fase di download');
+    fetchPricesOP();
+});
+
+async function fetchPricesOP() {
+    try {
+        const response = await fetch("https://op.market/en/prices/pc");
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const htmlContent = await response.text();
+        console.log(htmlContent);
+        searchAndDisplay('20XX');
+    } catch (error) {
+        console.error('Error fetching HTML:', error);
+    }
+}
+
+function searchAndDisplay(nameToSearch) {
+    // https://developer.mozilla.org/en-US/docs/Web/API/Document/querySelector
+    // // Select the container element with escaped class names
+    // const element = document.querySelector('.w-full.h-auto.bg-[#151423].rounded-lg.flex.flex-col.p-4.gap-2.items-start.justify-items-center.grow');
+    // if (container) {
+    //     //Select all child elements with the specified class
+    //     const childElements = container.querySelectorAll('');
+
+    //     // Iterate through the child elements
+    //     childElements.forEach((childElement) => {
+    //         // Select the name element within this child element
+    //         const nameElement = childElement.querySelector('.text-xl');
+            
+    //         // Check if the name matches the one you're looking for
+    //         if (nameElement && nameElement.textContent.trim() === nameToSearch) {
+    //             // Select elements with background color
+    //             const backgroundColorElements = childElement.querySelectorAll('[style^="background-color: rgb("]');
+                
+    //             // Iterate through the background color elements
+    //             backgroundColorElements.forEach((bgColorElement) => {
+    //                 // Get the background color and number
+    //                 const backgroundColor = bgColorElement.style.backgroundColor;
+    //                 const number = bgColorElement.textContent.trim();
+                    
+    //                 // Log or display the information as needed
+    //                 console.log(`Name: ${nameToSearch}, Background Color: ${backgroundColor}, Number: ${number}`);
+    //             });
+    //         }
+            
+    //     });
+    // } else {
+    //     console.log('Container element not found in the DOM.');
+    // }
+}
