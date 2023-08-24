@@ -155,17 +155,31 @@ function searchAndDisplay(nameToSearch, htmlContent) {
                     // Check if the name matches the one you're looking for
                     if (nameElement.textContent.trim() === nameToSearch) {
                         console.log(nameToSearch);
-                        // // Select elements with background color
-                        // const backgroundColorElements = nameElement.parentElement.querySelectorAll('[style^="background-color: rgb("]');
-                        
-                        // // Iterate through the background color elements
-                        // backgroundColorElements.forEach((bgColorElement) => {
-                        //     // Get the background color and number
-                        //     const backgroundColor = bgColorElement.style.backgroundColor;
-                        //     const number = bgColorElement.textContent.trim();
-                            
-                        //     // Log or display the information as needed
-                        //     console.log(`Name: ${nameToSearch}, Background Color: ${backgroundColor}, Number: ${number}`);
+                        // Select elements with the specified style attribute
+                        const styleElements = container.querySelectorAll('.w-full.grid.grid-rows-5.grid-cols-3.gap-0.h-full.text-sm.font-medium.text-black');
+                        console.log(styleElements);
+
+
+                        // // Iterate through the style elements
+                        // styleElements.forEach((styleElement) => {
+                        //     // Get the style attribute value
+                        //     const styleAttribute = styleElement.getAttribute('style');
+
+                        //     // Check if the style attribute contains the background-color property
+                        //     if (styleAttribute.includes('background-color: rgb(')) {
+                        //         // Extract the background color value
+                        //         const bgColorRegex = /background-color: rgb\((\d+), (\d+), (\d+)\)/;
+                        //         const matches = styleAttribute.match(bgColorRegex);
+
+                        //         if (matches && matches.length === 4) {
+                        //             const r = matches[1];
+                        //             const g = matches[2];
+                        //             const b = matches[3];
+
+                        //             // Log or display the information as needed
+                        //             console.log(`Name: ${nameToSearch}, Background Color: rgb(${r}, ${g}, ${b})`);
+                        //         }
+                        //     }
                         // });
                     }
                 });
