@@ -124,44 +124,56 @@ async function fetchPricesOP() {
         }
 
         const htmlContent = await response.text();
-        console.log(htmlContent);
-        searchAndDisplay('20XX');
+
+        // Fix image URLs by adding the domain "https://op.market" before "/_next"
+        const fixedHtmlContent = htmlContent.replace(/\/_next/g, 'https://op.market/_next');
+
+        //console.log(fixedHtmlContent);
+        searchAndDisplay('3-Lobe', fixedHtmlContent);
     } catch (error) {
         console.error('Error fetching HTML:', error);
     }
 }
 
-function searchAndDisplay(nameToSearch) {
-    // https://developer.mozilla.org/en-US/docs/Web/API/Document/querySelector
-    // // Select the container element with escaped class names
-    // const element = document.querySelector('.w-full.h-auto.bg-[#151423].rounded-lg.flex.flex-col.p-4.gap-2.items-start.justify-items-center.grow');
-    // if (container) {
-    //     //Select all child elements with the specified class
-    //     const childElements = container.querySelectorAll('');
+function searchAndDisplay(nameToSearch, htmlContent) {
+    try {
+        // Create a temporary div element to parse the HTML string
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = htmlContent;
 
-    //     // Iterate through the child elements
-    //     childElements.forEach((childElement) => {
-    //         // Select the name element within this child element
-    //         const nameElement = childElement.querySelector('.text-xl');
+        // Select all elements with the specified class
+        const containers = tempDiv.querySelectorAll('.w-full.h-auto.bg-\\[\\#151423\\].rounded-lg.flex.flex-col.p-4.gap-2.items-start.justify-items-center.grow');
+        
+        // Iterate through the containers
+        containers.forEach((container) => {
+            // Select all child elements with the specified class
+            const childElements = container.querySelectorAll('.text-xl');
             
-    //         // Check if the name matches the one you're looking for
-    //         if (nameElement && nameElement.textContent.trim() === nameToSearch) {
-    //             // Select elements with background color
-    //             const backgroundColorElements = childElement.querySelectorAll('[style^="background-color: rgb("]');
-                
-    //             // Iterate through the background color elements
-    //             backgroundColorElements.forEach((bgColorElement) => {
-    //                 // Get the background color and number
-    //                 const backgroundColor = bgColorElement.style.backgroundColor;
-    //                 const number = bgColorElement.textContent.trim();
-                    
-    //                 // Log or display the information as needed
-    //                 console.log(`Name: ${nameToSearch}, Background Color: ${backgroundColor}, Number: ${number}`);
-    //             });
-    //         }
-            
-    //     });
-    // } else {
-    //     console.log('Container element not found in the DOM.');
-    // }
+            if (childElements) {
+                // Iterate through the child elements
+                childElements.forEach((nameElement) => {
+                    // Check if the name matches the one you're looking for
+                    if (nameElement.textContent.trim() === nameToSearch) {
+                        console.log(nameToSearch);
+                        // // Select elements with background color
+                        // const backgroundColorElements = nameElement.parentElement.querySelectorAll('[style^="background-color: rgb("]');
+                        
+                        // // Iterate through the background color elements
+                        // backgroundColorElements.forEach((bgColorElement) => {
+                        //     // Get the background color and number
+                        //     const backgroundColor = bgColorElement.style.backgroundColor;
+                        //     const number = bgColorElement.textContent.trim();
+                            
+                        //     // Log or display the information as needed
+                        //     console.log(`Name: ${nameToSearch}, Background Color: ${backgroundColor}, Number: ${number}`);
+                        // });
+                    }
+                });
+            } else {
+                console.log('Child container element not found in the DOM.');
+            }
+        });
+    } catch (error) {
+        console.error('Error parsing and searching HTML:', error);
+    }
 }
