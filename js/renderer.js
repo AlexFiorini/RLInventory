@@ -3,6 +3,23 @@ const fs = require('fs');
 const URL = "https://op.market/ref/thedevilofgames";
 
 let inventory;
+const colors = [
+    "Unpainted",
+    "Black",
+    "Purple",
+    "Titanium White",
+    "Grey",
+    "Pink",
+    "Forest Green",
+    "Sky Blue",
+    "Cobalt",
+    "Lime",
+    "Saffron",
+    "Crimson",
+    "Burnt Sienna",
+    "Orange",
+    "Gold"
+];
 
 // Carica il file JSON
 ipcRenderer.on('json-data', (event, jsonData) => {
@@ -158,29 +175,23 @@ function searchAndDisplay(nameToSearch, htmlContent) {
                         // Select elements with the specified style attribute
                         const styleElements = container.querySelectorAll('.w-full.grid.grid-rows-5.grid-cols-3.gap-0.h-full.text-sm.font-medium.text-black');
                         console.log(styleElements);
+                        
+                        if(styleElements) {
+                            styleElements.forEach((styleElement) => {
+                                // Select elements with the specified style attribute within each styleElement
+                                const divprices = styleElement.querySelectorAll('div');
+                                divprices.forEach((divprice, index) => {
+                                    const color = colors[index] || "Unknown";
+                                    const priceText = divprice.textContent.trim();
+                                    const priceParts = priceText.split('-');
+                                    const price = priceParts.length > 0 ? priceParts[0].trim() : "Unknown";
 
-
-                        // // Iterate through the style elements
-                        // styleElements.forEach((styleElement) => {
-                        //     // Get the style attribute value
-                        //     const styleAttribute = styleElement.getAttribute('style');
-
-                        //     // Check if the style attribute contains the background-color property
-                        //     if (styleAttribute.includes('background-color: rgb(')) {
-                        //         // Extract the background color value
-                        //         const bgColorRegex = /background-color: rgb\((\d+), (\d+), (\d+)\)/;
-                        //         const matches = styleAttribute.match(bgColorRegex);
-
-                        //         if (matches && matches.length === 4) {
-                        //             const r = matches[1];
-                        //             const g = matches[2];
-                        //             const b = matches[3];
-
-                        //             // Log or display the information as needed
-                        //             console.log(`Name: ${nameToSearch}, Background Color: rgb(${r}, ${g}, ${b})`);
-                        //         }
-                        //     }
-                        // });
+                                    console.log(`Name: ${nameToSearch}, color: ${color}, price: ${price} `);
+                                });
+                            });                 
+                        } else {
+                            console.log('Style container element not found in the DOM');
+                        }
                     }
                 });
             } else {
@@ -191,3 +202,4 @@ function searchAndDisplay(nameToSearch, htmlContent) {
         console.error('Error parsing and searching HTML:', error);
     }
 }
+
