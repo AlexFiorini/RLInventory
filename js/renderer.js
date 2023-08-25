@@ -3,7 +3,61 @@ const fs = require('fs');
 const URL = "https://op.market/ref/thedevilofgames";
 
 let inventory;
-let htmlContent;
+let htmlitems = {
+    htmlWheels: {
+      term: 'Wheels',
+      data: ''
+    },
+    htmlDecal: {
+      term: 'Decal',
+      data: ''
+    },
+    htmlTopper: {
+      term: 'Topper',
+      data: ''
+    },
+    htmlBoost: {
+      term: 'Rocket Boost',
+      data: ''
+    },
+    htmlBanner: {
+      term: 'Player Banner',
+      data: ''
+    },
+    htmlAntenna: {
+      term: 'Antenna',
+      data: ''
+    },
+    htmlBody: {
+      term: 'Body',
+      data: ''
+    },
+    htmlGE: {
+      term: 'Goal Explosion',
+      data: ''
+    },
+    htmlTrail: {
+      term: 'Trail',
+      data: ''
+    },
+    htmlPaintFinish: {
+      term: 'Paint Finish',
+      data: ''
+    },
+    htmlGift: {
+      term: 'Gift Pack',
+      data: ''
+    },
+    htmlBorder: {
+      term: 'Avatar Border',
+      data: ''
+    },
+    htmlEngine: {
+      term: 'Engine Audio',
+      data: ''
+    }
+  };
+
 const colors = [
     "Unpainted",
     "Black",
@@ -60,14 +114,13 @@ function createTable() {
                 item.paint = handleNotPainted(item.paint);
                 item.rank_label = handleNotCertificated(item.rank_label);
                 item.special_edition = handleNotSE(item.special_edition);
-                if(item.price != '') {
-                    //0.14sec * item
-                    const itemPrice = searchAndDisplay(item.name, item.paint, htmlContent);
-                    item.price = itemPrice;
-                }                
+                //0.14sec * item
+                const itemPrice = searchAndDisplay(item.name, item.paint, item.slot);
+                item.price = itemPrice;          
                 itemsToAdd.push(item);
             }
         }
+        console.log(itemsToAdd);
         table.setData(itemsToAdd);
     });
 }
@@ -107,16 +160,15 @@ document.getElementById('fileInput').addEventListener('change', async (event) =>
 
 async function fetchPricesOP() {
     try {
-        if (!htmlContent) {
-            // Fetch the HTML content only if it hasn't been fetched already
-            const response = await fetch("https://op.market/en/prices/pc");
-            if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
-            }
-            htmlContent = await response.text();
-            // Fix image URLs by adding the domain "https://op.market" before "/_next"
-            htmlContent = htmlContent.replace(/\/_next/g, 'https://op.market/_next');
+        // Fetch the HTML content
+        const response = await fetch("https://op.market/en/prices/pc");
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
         }
+        htmlContent = await response.text();
+        // Fix image URLs by adding the domain "https://op.market" before "/_next"
+        htmlContent = htmlContent.replace(/\/_next/g, 'https://op.market/_next');
+        setGlobalSearchable(htmlContent);
         return htmlContent;
     } catch (error) {
         console.error('Error fetching HTML:', error);
@@ -125,48 +177,67 @@ async function fetchPricesOP() {
     }
 }
 
-function searchAndDisplay(nameToSearch, colortoSearch, htmlContent) {
+function setGlobalSearchable(htmlContent) {
+    // Create a temporary div element to parse the HTML string
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = htmlContent;
+    // Select all elements with the specified class
+    htmlitems.htmlWheels.data = tempDiv.querySelector('div[id="Wheels"]');
+    htmlitems.htmlDecal.data = tempDiv.querySelector('div[id="Decal"]');
+    htmlitems.htmlTopper.data = tempDiv.querySelector('div[id="Topper"]');
+    htmlitems.htmlBoost.data = tempDiv.querySelector('div[id="Rocket Boost]"');
+    htmlitems.htmlBanner.data = tempDiv.querySelector('div[id="Player Banner"]');
+    htmlitems.htmlAntenna.data = tempDiv.querySelector('div[id="Antenna"]');
+    htmlitems.htmlBody.data = tempDiv.querySelector('div[id="Body"]');
+    htmlitems.htmlGE.data = tempDiv.querySelector('div[id="Goal Explosion"]');
+    htmlitems.htmlTrail.data = tempDiv.querySelector('div[id="Trail"]');
+    htmlitems.htmlPaintFinish.data = tempDiv.querySelector('div[id="Paint Finish"]');
+    htmlitems.htmlGift.data = tempDiv.querySelector('div[id="Gift Pack"]');
+    htmlitems.htmlBorder.data = tempDiv.querySelector('div[id="Avatar Border"]');
+    htmlitems.htmlEngine.data = tempDiv.querySelector('div[id="Engine Audio"]');
+}
+
+function searchAndDisplay(nameToSearch, colortoSearch, slottoSearch) {
     let price = "-";
     try {
-        // Create a temporary div element to parse the HTML string
-        const tempDiv = document.createElement('div');
-        tempDiv.innerHTML = htmlContent;
-        // Select all elements with the specified class
-        const containers = tempDiv.querySelectorAll('.w-full.h-auto.bg-\\[\\#151423\\].rounded-lg.flex.flex-col.p-4.gap-2.items-start.justify-items-center.grow');
-        // Iterate through the containers
-        containers.forEach((container) => {
-            // Select all child elements with the specified class
-            const childElements = container.querySelectorAll('.text-xl');
-            if (childElements) {
-                // Iterate through the child elements
-                childElements.forEach((nameElement) => {
-                    // Check if the name matches the one you're looking for
-                    if (nameElement.textContent.trim() === nameToSearch) {
-                        // Select elements with the specified style attribute
-                        const styleElements = container.querySelectorAll('.w-full.grid.grid-rows-5.grid-cols-3.gap-0.h-full.text-sm.font-medium.text-black');                        
-                        if(styleElements) {
-                            styleElements.forEach((styleElement) => {
-                                // Select all divs inside styleElement
-                                const divprices = styleElement.querySelectorAll('div');
-                                divprices.forEach((divprice, index) => {
-                                    if(colors[index] === colortoSearch) {
-                                        const color = colors[index] || "Unknown";
-                                        const priceText = divprice.textContent.trim();
-                                        const priceParts = priceText.split('-');
-                                        price = priceParts.length > 0 ? priceParts[0].trim() : "Unknown";
-                                        return price;
-                                    } 
-                                });
-                            });                 
-                        } else {
-                            console.log('Style container element not found in the DOM');
-                        }
+        for(let key in htmlitems) {
+            if(htmlitems[key].term === slottoSearch) {
+                let serachcontainer = htmlitems[key].data.querySelectorAll('.w-full.h-auto.bg-\\[\\#151423\\].rounded-lg.flex.flex-col.p-4.gap-2.items-start.justify-items-center.grow');
+                // Iterate through the containers
+                serachcontainer.forEach((container) => {
+                    // Select all child elements with the specified class
+                    const childElements = container.querySelectorAll('.text-xl');
+                    if (childElements) {
+                        // Iterate through the child elements
+                        childElements.forEach((nameElement) => {
+                            // Check if the name matches the one you're looking for
+                            if (nameElement.textContent.trim() === nameToSearch) {
+                                // Select elements with the specified style attribute
+                                const styleElements = container.querySelectorAll('.w-full.grid.grid-rows-5.grid-cols-3.gap-0.h-full.text-sm.font-medium.text-black');                        
+                                if(styleElements) {
+                                    styleElements.forEach((styleElement) => {
+                                        // Select all divs inside styleElement
+                                        const divprices = styleElement.querySelectorAll('div');
+                                        divprices.forEach((divprice, index) => {
+                                            if(colors[index] === colortoSearch) {
+                                                const priceText = divprice.textContent.trim();
+                                                const priceParts = priceText.split('-');
+                                                price = priceParts.length > 0 ? priceParts[0].trim() : "Unknown";
+                                                return price;
+                                            } 
+                                        });
+                                    });                 
+                                } else {
+                                    console.log('Style container element not found in the DOM');
+                                }
+                            }
+                        });
+                    } else {
+                        console.log('Child container element not found in the DOM.');
                     }
                 });
-            } else {
-                console.log('Child container element not found in the DOM.');
             }
-        });
+        }
     } catch (error) {
         console.error('Error parsing and searching HTML:', error);
     }
