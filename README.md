@@ -1,4 +1,4 @@
-# RLINVENTORY
+# RLINVENTORY [![wakatime](https://wakatime.com/badge/user/2a191da9-215a-432f-a38e-cf75a81f80b6/project/50885904-a9e8-4ecf-ad95-c7bbc43da8c1.svg)](https://wakatime.com/badge/user/2a191da9-215a-432f-a38e-cf75a81f80b6/project/50885904-a9e8-4ecf-ad95-c7bbc43da8c1)
 <h3>Your friend to know which items are tradable in your inventory</h3>
 
 ## Installation
