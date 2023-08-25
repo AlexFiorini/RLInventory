@@ -1,5 +1,5 @@
 const { ipcRenderer } = require('electron');
-const URL = "https://op.market/ref/thedevilofgames";
+const supportURL = "https://op.market/ref/thedevilofgames";
 
 let inventory;
 let htmlitems = {
@@ -124,7 +124,7 @@ function createTable() {
 }
 
 document.getElementById('support').addEventListener('click', function() {
-    require('electron').shell.openExternal(URL);
+    require('electron').shell.openExternal(supportURL);
 });
 
 document.getElementById('fileInput').addEventListener('change', async (event) => {
@@ -200,7 +200,7 @@ function searchAndDisplay(nameToSearch, colortoSearch, slottoSearch) {
     try {
         for (let key in htmlitems) {
             if (htmlitems[key].term === slottoSearch) {
-                let searchcontainer = htmlitems[key].data.querySelectorAll('.w-full.h-auto.bg-\\[\\#151423\\].rounded-lg.flex.flex-col.p-4.gap-2.items-start.justify-items-center.grow');
+                let searchcontainer = htmlitems[key].data.querySelectorAll('.rounded-lg');
                 if (searchcontainer) {
                     // Iterate through the containers
                     searchcontainer.forEach((container) => {
@@ -212,8 +212,8 @@ function searchAndDisplay(nameToSearch, colortoSearch, slottoSearch) {
                                 // Check if the name matches the one you're looking for
                                 if (nameElement.textContent.trim() === nameToSearch) {
                                     // Select elements with the specified style attribute
-                                    const styleElements = container.querySelectorAll('.w-full.grid.grid-rows-5.grid-cols-3.gap-0.h-full.text-sm.font-medium.text-black');
-                                    if (styleElements) {
+                                    var styleElements = container.querySelectorAll('.grid-rows-5');
+                                    if (styleElements.length > 0) {
                                         styleElements.forEach((styleElement) => {
                                             // Select all divs inside styleElement
                                             const divprices = styleElement.querySelectorAll('div');
@@ -232,7 +232,16 @@ function searchAndDisplay(nameToSearch, colortoSearch, slottoSearch) {
                                             }
                                         });
                                     } else {
-                                        console.log('StyleElements is null:', container);
+                                        //If item has only unpainted version
+                                        styleElements = container.querySelector('.text-sm');
+                                        if (styleElements) {
+                                            const priceText = styleElements.textContent.trim();
+                                            const priceParts = priceText.split('-');
+                                            price = priceParts.length > 0 ? priceParts[0].trim() : "Unknown";
+                                            return price;
+                                        } else {
+                                            console.log('styleElements is null:', container);
+                                        }
                                     }
                                 }
                             });
