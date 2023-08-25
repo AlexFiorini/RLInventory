@@ -3,6 +3,7 @@ const fs = require('fs');
 const URL = "https://op.market/ref/thedevilofgames";
 
 let inventory;
+let htmlContent;
 const colors = [
     "Unpainted",
     "Black",
@@ -25,8 +26,9 @@ const colors = [
 ipcRenderer.on('json-data', (event, jsonData) => {
     if (Array.isArray(jsonData)) {
         inventory = jsonData.filter(item => item.tradeable === 'true');
-        console.log(inventory);
-        createTable();
+        fetchPricesOP()
+            .then(() => createTable())
+            .catch(error => console.error('Error loading htmlContent:', error));
     } else {
         console.error('Invalid JSON data received:', jsonData);
     }
@@ -45,7 +47,8 @@ function createTable() {
             { title: "Paint", field: "paint", headerFilter: "input", sorter: "string", formatter: paintFormatter, resizable: false},
             { title: "Certification", field: "rank_label", headerFilter: "input", sorter: "string", resizable: false},
             { title: "Quality", field: "quality", headerFilter: "input", sorter: customQualitySorter, resizable: false},
-            { title: "Special Edition", field: "special_edition", headerFilter: "input", sorter: "string", formatter: specialEditionFormatter, resizable: false}
+            { title: "Special Edition", field: "special_edition", headerFilter: "input", sorter: "string", formatter: specialEditionFormatter, resizable: false},
+            { title: "Price", field: "price", headerFilter: "input", sorter: "string", resizable: false}
         ],
     });
 
@@ -57,6 +60,11 @@ function createTable() {
                 item.paint = handleNotPainted(item.paint);
                 item.rank_label = handleNotCertificated(item.rank_label);
                 item.special_edition = handleNotSE(item.special_edition);
+                if(item.price != '') {
+                    //0.14sec * item
+                    const itemPrice = searchAndDisplay(item.name, item.paint, htmlContent);
+                    item.price = itemPrice;
+                }                
                 itemsToAdd.push(item);
             }
         }
@@ -106,7 +114,6 @@ document.getElementById('fileInput').addEventListener('change', async (event) =>
             const fileContent = e.target.result;
             const parsedData = JSON.parse(fileContent);
             const parsedDataArray = Object.values(parsedData.inventory);
-            console.log(parsedDataArray);
             if (Array.isArray(parsedDataArray)) {
                 ipcRenderer.send('json-data', parsedDataArray);
                 let table = document.getElementById('inventory-table');
@@ -115,7 +122,6 @@ document.getElementById('fileInput').addEventListener('change', async (event) =>
                 newtable.setAttribute("id", "inventory-table");
                 document.body.appendChild(newtable);
                 var inventory2 = parsedDataArray.filter(item => item.tradeable === 'true');
-                console.log(inventory2);
                 createTablefile(inventory2);
             } else {
                 console.error('JSON data is not in the expected format.');
@@ -128,65 +134,57 @@ document.getElementById('fileInput').addEventListener('change', async (event) =>
     reader.readAsText(selectedFile);
 });
 
-document.getElementById('prices').addEventListener('click', function() {
-    console.log('Prezzario in fase di download');
-    fetchPricesOP();
-});
-
 async function fetchPricesOP() {
     try {
-        const response = await fetch("https://op.market/en/prices/pc");
-        if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
+        if (!htmlContent) {
+            // Fetch the HTML content only if it hasn't been fetched already
+            const response = await fetch("https://op.market/en/prices/pc");
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            htmlContent = await response.text();
+            // Fix image URLs by adding the domain "https://op.market" before "/_next"
+            htmlContent = htmlContent.replace(/\/_next/g, 'https://op.market/_next');
         }
-
-        const htmlContent = await response.text();
-
-        // Fix image URLs by adding the domain "https://op.market" before "/_next"
-        const fixedHtmlContent = htmlContent.replace(/\/_next/g, 'https://op.market/_next');
-
-        //console.log(fixedHtmlContent);
-        searchAndDisplay('3-Lobe', fixedHtmlContent);
+        return htmlContent;
     } catch (error) {
         console.error('Error fetching HTML:', error);
+        // Reject the promise in case of an error
+        throw error;
     }
 }
 
-function searchAndDisplay(nameToSearch, htmlContent) {
+function searchAndDisplay(nameToSearch, colortoSearch, htmlContent) {
+    let price = "-";
     try {
         // Create a temporary div element to parse the HTML string
         const tempDiv = document.createElement('div');
         tempDiv.innerHTML = htmlContent;
-
         // Select all elements with the specified class
         const containers = tempDiv.querySelectorAll('.w-full.h-auto.bg-\\[\\#151423\\].rounded-lg.flex.flex-col.p-4.gap-2.items-start.justify-items-center.grow');
-        
         // Iterate through the containers
         containers.forEach((container) => {
             // Select all child elements with the specified class
             const childElements = container.querySelectorAll('.text-xl');
-            
             if (childElements) {
                 // Iterate through the child elements
                 childElements.forEach((nameElement) => {
                     // Check if the name matches the one you're looking for
                     if (nameElement.textContent.trim() === nameToSearch) {
-                        console.log(nameToSearch);
                         // Select elements with the specified style attribute
-                        const styleElements = container.querySelectorAll('.w-full.grid.grid-rows-5.grid-cols-3.gap-0.h-full.text-sm.font-medium.text-black');
-                        console.log(styleElements);
-                        
+                        const styleElements = container.querySelectorAll('.w-full.grid.grid-rows-5.grid-cols-3.gap-0.h-full.text-sm.font-medium.text-black');                        
                         if(styleElements) {
                             styleElements.forEach((styleElement) => {
-                                // Select elements with the specified style attribute within each styleElement
+                                // Select all divs inside styleElement
                                 const divprices = styleElement.querySelectorAll('div');
                                 divprices.forEach((divprice, index) => {
-                                    const color = colors[index] || "Unknown";
-                                    const priceText = divprice.textContent.trim();
-                                    const priceParts = priceText.split('-');
-                                    const price = priceParts.length > 0 ? priceParts[0].trim() : "Unknown";
-
-                                    console.log(`Name: ${nameToSearch}, color: ${color}, price: ${price} `);
+                                    if(colors[index] === colortoSearch) {
+                                        const color = colors[index] || "Unknown";
+                                        const priceText = divprice.textContent.trim();
+                                        const priceParts = priceText.split('-');
+                                        price = priceParts.length > 0 ? priceParts[0].trim() : "Unknown";
+                                        return price;
+                                    } 
                                 });
                             });                 
                         } else {
@@ -201,5 +199,5 @@ function searchAndDisplay(nameToSearch, htmlContent) {
     } catch (error) {
         console.error('Error parsing and searching HTML:', error);
     }
+    return price;
 }
-
