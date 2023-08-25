@@ -113,7 +113,6 @@ function createTable() {
                 item.paint = handleNotPainted(item.paint);
                 item.rank_label = handleNotCertificated(item.rank_label);
                 item.special_edition = handleNotSE(item.special_edition);
-                //0.14sec * item
                 const itemPrice = searchAndDisplay(item.name, item.paint, item.slot);
                 item.price = itemPrice;          
                 itemsToAdd.push(item);
