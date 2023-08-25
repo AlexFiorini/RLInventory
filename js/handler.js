@@ -40,3 +40,26 @@ function customQualitySorter(a, b) {
 
     return qualityOrder[qualityA] - qualityOrder[qualityB];
 }
+
+function customPriceSorter(a, b, aRow, bRow, column, dir, sorterParams) {
+    if (a === "-" && b === "-") {
+        return 0;
+    } else if (a === "-") {
+        return -1;
+    } else if (b === "-") {
+        return 1;
+    } else {
+        const numA = parseFloat(a);
+        const numB = parseFloat(b);
+
+        if (isNaN(numA) && isNaN(numB)) {
+            return 0;
+        } else if (isNaN(numA)) {
+            return dir === "asc" ? 1 : -1;
+        } else if (isNaN(numB)) {
+            return dir === "asc" ? -1 : 1;
+        } else {
+            return numA - numB;
+        }
+    }
+}

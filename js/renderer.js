@@ -1,15 +1,87 @@
 const { ipcRenderer } = require('electron');
-const fs = require('fs');
-const URL = "https://op.market/ref/thedevilofgames";
+const supportURL = "https://op.market/ref/thedevilofgames";
 
 let inventory;
+let htmlitems = {
+    Wheels: {
+      term: 'Wheels',
+      data: ''
+    },
+    Decal: {
+      term: 'Decal',
+      data: ''
+    },
+    Topper: {
+      term: 'Topper',
+      data: ''
+    },
+    RocketBoost: {
+      term: 'Rocket Boost',
+      data: ''
+    },
+    Banner: {
+      term: 'Player Banner',
+      data: ''
+    },
+    Antenna: {
+      term: 'Antenna',
+      data: ''
+    },
+    Body: {
+      term: 'Body',
+      data: ''
+    },
+    GoalExplosion: {
+      term: 'Goal Explosion',
+      data: ''
+    },
+    Trail: {
+      term: 'Trail',
+      data: ''
+    },
+    PaintFinish: {
+      term: 'Paint Finish',
+      data: ''
+    },
+    GiftPack: {
+      term: 'Gift Pack',
+      data: ''
+    },
+    AvatarBorder: {
+      term: 'Avatar Border',
+      data: ''
+    },
+    EngineAudio: {
+      term: 'Engine Audio',
+      data: ''
+    }
+  };
+
+const colors = [
+    "Unpainted",
+    "Black",
+    "Purple",
+    "Titanium White",
+    "Grey",
+    "Pink",
+    "Forest Green",
+    "Sky Blue",
+    "Cobalt",
+    "Lime",
+    "Saffron",
+    "Crimson",
+    "Burnt Sienna",
+    "Orange",
+    "Gold"
+];
 
 // Carica il file JSON
 ipcRenderer.on('json-data', (event, jsonData) => {
     if (Array.isArray(jsonData)) {
         inventory = jsonData.filter(item => item.tradeable === 'true');
-        console.log(inventory);
-        createTable();
+        fetchPricesOP()
+            .then(() => createTable())
+            .catch(error => console.error('Error loading htmlContent:', error));
     } else {
         console.error('Invalid JSON data received:', jsonData);
     }
@@ -28,7 +100,8 @@ function createTable() {
             { title: "Paint", field: "paint", headerFilter: "input", sorter: "string", formatter: paintFormatter, resizable: false},
             { title: "Certification", field: "rank_label", headerFilter: "input", sorter: "string", resizable: false},
             { title: "Quality", field: "quality", headerFilter: "input", sorter: customQualitySorter, resizable: false},
-            { title: "Special Edition", field: "special_edition", headerFilter: "input", sorter: "string", formatter: specialEditionFormatter, resizable: false}
+            { title: "Special Edition", field: "special_edition", headerFilter: "input", sorter: "string", formatter: specialEditionFormatter, resizable: false},
+            { title: "OPMarket Price", field: "price", headerFilter: "input", sorter: customPriceSorter, resizable: false}
         ],
     });
 
@@ -40,6 +113,8 @@ function createTable() {
                 item.paint = handleNotPainted(item.paint);
                 item.rank_label = handleNotCertificated(item.rank_label);
                 item.special_edition = handleNotSE(item.special_edition);
+                const itemPrice = searchAndDisplay(item.name, item.paint, item.slot);
+                item.price = itemPrice;          
                 itemsToAdd.push(item);
             }
         }
@@ -47,37 +122,8 @@ function createTable() {
     });
 }
 
-function createTablefile(data) {
-    const table = new Tabulator("#inventory-table", {
-        layout: "fitDataStretch",
-        responsiveLayout: "collapse",
-        columns: [
-            { title: "Name", field: "name", headerFilter: "input", sorter: "string", resizable: false},
-            { title: "Slot", field: "slot", headerFilter: "input", sorter: "string", resizable: false},
-            { title: "Paint", field: "paint", headerFilter: "input", sorter: "string", formatter: paintFormatter, resizable: false},
-            { title: "Certification", field: "rank_label", headerFilter: "input", sorter: "string", resizable: false},
-            { title: "Quality", field: "quality", headerFilter: "input", sorter: customQualitySorter, resizable: false},
-            { title: "Special Edition", field: "special_edition", headerFilter: "input", sorter: "string", formatter: specialEditionFormatter, resizable: false}
-        ],
-    });
-
-    table.on("tableBuilt", async function(){
-        const itemsToAdd = [];
-        for (const item of data) {
-            if (item.quality !== '' && item.quality !== 'Common') {
-                item.slot = handleDecal(item.slot);
-                item.paint = handleNotPainted(item.paint);
-                item.rank_label = handleNotCertificated(item.rank_label);
-                item.special_edition = handleNotSE(item.special_edition);
-                itemsToAdd.push(item);
-            }
-        }
-        table.setData(itemsToAdd);
-    });
-};
-
 document.getElementById('support').addEventListener('click', function() {
-    require('electron').shell.openExternal(URL);
+    require('electron').shell.openExternal(supportURL);
 });
 
 document.getElementById('fileInput').addEventListener('change', async (event) => {
@@ -89,7 +135,6 @@ document.getElementById('fileInput').addEventListener('change', async (event) =>
             const fileContent = e.target.result;
             const parsedData = JSON.parse(fileContent);
             const parsedDataArray = Object.values(parsedData.inventory);
-            console.log(parsedDataArray);
             if (Array.isArray(parsedDataArray)) {
                 ipcRenderer.send('json-data', parsedDataArray);
                 let table = document.getElementById('inventory-table');
@@ -97,9 +142,8 @@ document.getElementById('fileInput').addEventListener('change', async (event) =>
                 var newtable = document.createElement("div");
                 newtable.setAttribute("id", "inventory-table");
                 document.body.appendChild(newtable);
-                var inventory2 = parsedDataArray.filter(item => item.tradeable === 'true');
-                console.log(inventory2);
-                createTablefile(inventory2);
+                inventory = parsedDataArray.filter(item => item.tradeable === 'true');
+                createTable();
             } else {
                 console.error('JSON data is not in the expected format.');
             }
@@ -110,3 +154,107 @@ document.getElementById('fileInput').addEventListener('change', async (event) =>
 
     reader.readAsText(selectedFile);
 });
+
+async function fetchPricesOP() {
+    try {
+        // Fetch the HTML content
+        const response = await fetch("https://op.market/en/prices/pc");
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        htmlContent = await response.text();
+        // Fix image URLs by adding the domain "https://op.market" before "/_next"
+        htmlContent = htmlContent.replace(/\/_next/g, 'https://op.market/_next');
+        setGlobalSearchable(htmlContent);
+        return htmlContent;
+    } catch (error) {
+        console.error('Error fetching HTML:', error);
+        // Reject the promise in case of an error
+        throw error;
+    }
+}
+
+function setGlobalSearchable(htmlContent) {
+    // Create a temporary div element to parse the HTML string
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = htmlContent;
+    // Select all elements with the specified class
+    htmlitems.Wheels.data = tempDiv.querySelector('div[id="Wheels"]');
+    htmlitems.Decal.data = tempDiv.querySelector('div[id="Decal"]');
+    htmlitems.Topper.data = tempDiv.querySelector('div[id="Topper"]');
+    htmlitems.RocketBoost.data = tempDiv.querySelector('div[id="Rocket Boost"]');
+    htmlitems.Banner.data = tempDiv.querySelector('div[id="Player Banner"]');
+    htmlitems.Antenna.data = tempDiv.querySelector('div[id="Antenna"]');
+    htmlitems.Body.data = tempDiv.querySelector('div[id="Body"]');
+    htmlitems.GoalExplosion.data = tempDiv.querySelector('div[id="Goal Explosion"]');
+    htmlitems.Trail.data = tempDiv.querySelector('div[id="Trail"]');
+    htmlitems.PaintFinish.data = tempDiv.querySelector('div[id="Paint Finish"]');
+    htmlitems.GiftPack.data = tempDiv.querySelector('div[id="Gift Pack"]');
+    htmlitems.AvatarBorder.data = tempDiv.querySelector('div[id="Avatar Border"]');
+    htmlitems.EngineAudio.data = tempDiv.querySelector('div[id="Engine Audio"]');
+}
+
+function searchAndDisplay(nameToSearch, colortoSearch, slottoSearch) {
+    let price = "-";
+    try {
+        for (let key in htmlitems) {
+            if (htmlitems[key].term === slottoSearch) {
+                let searchcontainer = htmlitems[key].data.querySelectorAll('.rounded-lg');
+                if (searchcontainer) {
+                    // Iterate through the containers
+                    searchcontainer.forEach((container) => {
+                        // Select all child elements with the specified class
+                        const childElements = container.querySelectorAll('.text-xl');
+                        if (childElements) {
+                            // Iterate through the child elements
+                            childElements.forEach((nameElement) => {
+                                // Check if the name matches the one you're looking for
+                                if (nameElement.textContent.trim() === nameToSearch) {
+                                    // Select elements with the specified style attribute
+                                    var styleElements = container.querySelectorAll('.grid-rows-5');
+                                    if (styleElements.length > 0) {
+                                        styleElements.forEach((styleElement) => {
+                                            // Select all divs inside styleElement
+                                            const divprices = styleElement.querySelectorAll('div');
+                                            if (divprices) {
+                                                divprices.forEach((divprice, index) => {
+                                                    if (colors[index] === colortoSearch) {
+                                                        const priceText = divprice.textContent.trim();
+                                                        const priceParts = priceText.split('-');
+                                                        price = priceParts.length > 0 ? priceParts[0].trim() : "Unknown";
+                                                        //console.log(nameToSearch, colortoSearch, slottoSearch, price);
+                                                        return price;
+                                                    }
+                                                });
+                                            } else {
+                                                console.log('divprices is null:', container);
+                                            }
+                                        });
+                                    } else {
+                                        //If item has only unpainted version
+                                        styleElements = container.querySelector('.text-sm');
+                                        if (styleElements) {
+                                            const priceText = styleElements.textContent.trim();
+                                            const priceParts = priceText.split('-');
+                                            price = priceParts.length > 0 ? priceParts[0].trim() : "Unknown";
+                                            return price;
+                                        } else {
+                                            console.log('styleElements is null:', container);
+                                        }
+                                    }
+                                }
+                            });
+                        } else {
+                            console.log('ChildElements is null:', container);
+                        }
+                    });
+                } else {
+                    console.log('SearchContainer is null:', searchcontainer);
+                }
+            }
+        }
+    } catch (error) {
+        console.error('Error parsing and searching HTML:', error);
+    }
+    return price;
+}
