@@ -1,58 +1,57 @@
 const { ipcRenderer } = require('electron');
-const fs = require('fs');
 const URL = "https://op.market/ref/thedevilofgames";
 
 let inventory;
 let htmlitems = {
-    htmlWheels: {
+    Wheels: {
       term: 'Wheels',
       data: ''
     },
-    htmlDecal: {
+    Decal: {
       term: 'Decal',
       data: ''
     },
-    htmlTopper: {
+    Topper: {
       term: 'Topper',
       data: ''
     },
-    htmlBoost: {
+    RocketBoost: {
       term: 'Rocket Boost',
       data: ''
     },
-    htmlBanner: {
+    Banner: {
       term: 'Player Banner',
       data: ''
     },
-    htmlAntenna: {
+    Antenna: {
       term: 'Antenna',
       data: ''
     },
-    htmlBody: {
+    Body: {
       term: 'Body',
       data: ''
     },
-    htmlGE: {
+    GoalExplosion: {
       term: 'Goal Explosion',
       data: ''
     },
-    htmlTrail: {
+    Trail: {
       term: 'Trail',
       data: ''
     },
-    htmlPaintFinish: {
+    PaintFinish: {
       term: 'Paint Finish',
       data: ''
     },
-    htmlGift: {
+    GiftPack: {
       term: 'Gift Pack',
       data: ''
     },
-    htmlBorder: {
+    AvatarBorder: {
       term: 'Avatar Border',
       data: ''
     },
-    htmlEngine: {
+    EngineAudio: {
       term: 'Engine Audio',
       data: ''
     }
@@ -120,7 +119,6 @@ function createTable() {
                 itemsToAdd.push(item);
             }
         }
-        console.log(itemsToAdd);
         table.setData(itemsToAdd);
     });
 }
@@ -182,19 +180,19 @@ function setGlobalSearchable(htmlContent) {
     const tempDiv = document.createElement('div');
     tempDiv.innerHTML = htmlContent;
     // Select all elements with the specified class
-    htmlitems.htmlWheels.data = tempDiv.querySelector('div[id="Wheels"]');
-    htmlitems.htmlDecal.data = tempDiv.querySelector('div[id="Decal"]');
-    htmlitems.htmlTopper.data = tempDiv.querySelector('div[id="Topper"]');
-    htmlitems.htmlBoost.data = tempDiv.querySelector('div[id="Rocket Boost]"');
-    htmlitems.htmlBanner.data = tempDiv.querySelector('div[id="Player Banner"]');
-    htmlitems.htmlAntenna.data = tempDiv.querySelector('div[id="Antenna"]');
-    htmlitems.htmlBody.data = tempDiv.querySelector('div[id="Body"]');
-    htmlitems.htmlGE.data = tempDiv.querySelector('div[id="Goal Explosion"]');
-    htmlitems.htmlTrail.data = tempDiv.querySelector('div[id="Trail"]');
-    htmlitems.htmlPaintFinish.data = tempDiv.querySelector('div[id="Paint Finish"]');
-    htmlitems.htmlGift.data = tempDiv.querySelector('div[id="Gift Pack"]');
-    htmlitems.htmlBorder.data = tempDiv.querySelector('div[id="Avatar Border"]');
-    htmlitems.htmlEngine.data = tempDiv.querySelector('div[id="Engine Audio"]');
+    htmlitems.Wheels.data = tempDiv.querySelector('div[id="Wheels"]');
+    htmlitems.Decal.data = tempDiv.querySelector('div[id="Decal"]');
+    htmlitems.Topper.data = tempDiv.querySelector('div[id="Topper"]');
+    htmlitems.RocketBoost.data = tempDiv.querySelector('div[id="Rocket Boost"]');
+    htmlitems.Banner.data = tempDiv.querySelector('div[id="Player Banner"]');
+    htmlitems.Antenna.data = tempDiv.querySelector('div[id="Antenna"]');
+    htmlitems.Body.data = tempDiv.querySelector('div[id="Body"]');
+    htmlitems.GoalExplosion.data = tempDiv.querySelector('div[id="Goal Explosion"]');
+    htmlitems.Trail.data = tempDiv.querySelector('div[id="Trail"]');
+    htmlitems.PaintFinish.data = tempDiv.querySelector('div[id="Paint Finish"]');
+    htmlitems.GiftPack.data = tempDiv.querySelector('div[id="Gift Pack"]');
+    htmlitems.AvatarBorder.data = tempDiv.querySelector('div[id="Avatar Border"]');
+    htmlitems.EngineAudio.data = tempDiv.querySelector('div[id="Engine Audio"]');
 }
 
 function searchAndDisplay(nameToSearch, colortoSearch, slottoSearch) {
