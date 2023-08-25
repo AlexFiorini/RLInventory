@@ -200,42 +200,51 @@ function setGlobalSearchable(htmlContent) {
 function searchAndDisplay(nameToSearch, colortoSearch, slottoSearch) {
     let price = "-";
     try {
-        for(let key in htmlitems) {
-            if(htmlitems[key].term === slottoSearch) {
-                let serachcontainer = htmlitems[key].data.querySelectorAll('.w-full.h-auto.bg-\\[\\#151423\\].rounded-lg.flex.flex-col.p-4.gap-2.items-start.justify-items-center.grow');
-                // Iterate through the containers
-                serachcontainer.forEach((container) => {
-                    // Select all child elements with the specified class
-                    const childElements = container.querySelectorAll('.text-xl');
-                    if (childElements) {
-                        // Iterate through the child elements
-                        childElements.forEach((nameElement) => {
-                            // Check if the name matches the one you're looking for
-                            if (nameElement.textContent.trim() === nameToSearch) {
-                                // Select elements with the specified style attribute
-                                const styleElements = container.querySelectorAll('.w-full.grid.grid-rows-5.grid-cols-3.gap-0.h-full.text-sm.font-medium.text-black');                        
-                                if(styleElements) {
-                                    styleElements.forEach((styleElement) => {
-                                        // Select all divs inside styleElement
-                                        const divprices = styleElement.querySelectorAll('div');
-                                        divprices.forEach((divprice, index) => {
-                                            if(colors[index] === colortoSearch) {
-                                                const priceText = divprice.textContent.trim();
-                                                const priceParts = priceText.split('-');
-                                                price = priceParts.length > 0 ? priceParts[0].trim() : "Unknown";
-                                                return price;
-                                            } 
+        for (let key in htmlitems) {
+            if (htmlitems[key].term === slottoSearch) {
+                let searchcontainer = htmlitems[key].data.querySelectorAll('.w-full.h-auto.bg-\\[\\#151423\\].rounded-lg.flex.flex-col.p-4.gap-2.items-start.justify-items-center.grow');
+                if (searchcontainer) {
+                    // Iterate through the containers
+                    searchcontainer.forEach((container) => {
+                        // Select all child elements with the specified class
+                        const childElements = container.querySelectorAll('.text-xl');
+                        if (childElements) {
+                            // Iterate through the child elements
+                            childElements.forEach((nameElement) => {
+                                // Check if the name matches the one you're looking for
+                                if (nameElement.textContent.trim() === nameToSearch) {
+                                    // Select elements with the specified style attribute
+                                    const styleElements = container.querySelectorAll('.w-full.grid.grid-rows-5.grid-cols-3.gap-0.h-full.text-sm.font-medium.text-black');
+                                    if (styleElements) {
+                                        styleElements.forEach((styleElement) => {
+                                            // Select all divs inside styleElement
+                                            const divprices = styleElement.querySelectorAll('div');
+                                            if (divprices) {
+                                                divprices.forEach((divprice, index) => {
+                                                    if (colors[index] === colortoSearch) {
+                                                        const priceText = divprice.textContent.trim();
+                                                        const priceParts = priceText.split('-');
+                                                        price = priceParts.length > 0 ? priceParts[0].trim() : "Unknown";
+                                                        //console.log(nameToSearch, colortoSearch, slottoSearch, price);
+                                                        return price;
+                                                    }
+                                                });
+                                            } else {
+                                                console.log('divprices is null:', container);
+                                            }
                                         });
-                                    });                 
-                                } else {
-                                    console.log('Style container element not found in the DOM');
+                                    } else {
+                                        console.log('StyleElements is null:', container);
+                                    }
                                 }
-                            }
-                        });
-                    } else {
-                        console.log('Child container element not found in the DOM.');
-                    }
-                });
+                            });
+                        } else {
+                            console.log('ChildElements is null:', container);
+                        }
+                    });
+                } else {
+                    console.log('SearchContainer is null:', searchcontainer);
+                }
             }
         }
     } catch (error) {
