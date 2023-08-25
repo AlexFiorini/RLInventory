@@ -48,7 +48,7 @@ function createTable() {
             { title: "Certification", field: "rank_label", headerFilter: "input", sorter: "string", resizable: false},
             { title: "Quality", field: "quality", headerFilter: "input", sorter: customQualitySorter, resizable: false},
             { title: "Special Edition", field: "special_edition", headerFilter: "input", sorter: "string", formatter: specialEditionFormatter, resizable: false},
-            { title: "Price", field: "price", headerFilter: "input", sorter: "string", resizable: false}
+            { title: "Price", field: "price", headerFilter: "input", sorter: customPriceSorter, resizable: false}
         ],
     });
 
