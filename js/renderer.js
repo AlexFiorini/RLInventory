@@ -95,6 +95,7 @@ function createTable() {
         layout: "fitDataStretch",
         responsiveLayout: "collapse",
         columns: [
+            { title: "Image", field: "image", headerSort:false, formatter: imageFormatter, resizable: false},
             { title: "Name", field: "name", headerFilter: "input", sorter: "string", resizable: false},
             { title: "Slot", field: "slot", headerFilter: "input", sorter: "string", resizable: false},
             { title: "Paint", field: "paint", headerFilter: "input", sorter: "string", formatter: paintFormatter, resizable: false},
@@ -113,8 +114,9 @@ function createTable() {
                 item.paint = handleNotPainted(item.paint);
                 item.rank_label = handleNotCertificated(item.rank_label);
                 item.special_edition = handleNotSE(item.special_edition);
-                const itemPrice = searchAndDisplay(item.name, item.paint, item.slot);
-                item.price = itemPrice;          
+                const price_image = searchAndDisplay(item.name, item.paint, item.slot);
+                item.price = price_image.price;
+                item.image = price_image.image;     
                 itemsToAdd.push(item);
             }
         }
@@ -195,7 +197,10 @@ function setGlobalSearchable(htmlContent) {
 }
 
 function searchAndDisplay(nameToSearch, colortoSearch, slottoSearch) {
-    let price = "-";
+    let returnobj = {
+        image: "https://op.market/_next/static/media/FallbackItemImage.89e7bb87.svg",
+        price: "-",
+    }
     try {
         for (let key in htmlitems) {
             if (htmlitems[key].term === slottoSearch) {
@@ -210,6 +215,8 @@ function searchAndDisplay(nameToSearch, colortoSearch, slottoSearch) {
                             childElements.forEach((nameElement) => {
                                 // Check if the name matches the one you're looking for
                                 if (nameElement.textContent.trim() === nameToSearch) {
+                                    const photoElement = container.querySelector('.mix-blend-screen');
+                                    returnobj.image = photoElement.src;
                                     // Select elements with the specified style attribute
                                     var styleElements = container.querySelectorAll('.grid-rows-5');
                                     if (styleElements.length > 0) {
@@ -222,8 +229,8 @@ function searchAndDisplay(nameToSearch, colortoSearch, slottoSearch) {
                                                         const priceText = divprice.textContent.trim();
                                                         const priceParts = priceText.split('-');
                                                         price = priceParts.length > 0 ? priceParts[0].trim() : "Unknown";
-                                                        //console.log(nameToSearch, colortoSearch, slottoSearch, price);
-                                                        return price;
+                                                        returnobj.price = price;
+                                                        return returnobj;
                                                     }
                                                 });
                                             } else {
@@ -237,7 +244,8 @@ function searchAndDisplay(nameToSearch, colortoSearch, slottoSearch) {
                                             const priceText = styleElements.textContent.trim();
                                             const priceParts = priceText.split('-');
                                             price = priceParts.length > 0 ? priceParts[0].trim() : "Unknown";
-                                            return price;
+                                            returnobj.price = price;
+                                            return returnobj;
                                         } else {
                                             console.log('styleElements is null:', container);
                                         }
@@ -256,5 +264,5 @@ function searchAndDisplay(nameToSearch, colortoSearch, slottoSearch) {
     } catch (error) {
         console.error('Error parsing and searching HTML:', error);
     }
-    return price;
+    return returnobj;
 }

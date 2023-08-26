@@ -5,6 +5,11 @@ function paintFormatter(cell, formatterParams, onRendered) {
     return `<div style="background: ${backgroundStyle}; padding: 5px; border-radius: 3px;">${displayValue}</div>`;
 }
 
+function imageFormatter(cell, formatterParams, onRendered) {
+    const img = cell.getValue();
+    return `<div style="display: flex; justify-content: center; align-items: center; height: 80px; width: 80px; overflow: hidden;"><img src="${img}" style="max-height: 100%; max-width: 100%;"></div>`;
+}
+
 function getBackgroundStyleForColor(color) {
     return colorBackgrounds[color] || '';
 }
