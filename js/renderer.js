@@ -204,11 +204,12 @@ function searchAndDisplay(nameToSearch, colortoSearch, slottoSearch) {
     try {
         for (let key in htmlitems) {
             if (htmlitems[key].term === slottoSearch) {
+                // Select all elements that contain info about one item
                 let searchcontainer = htmlitems[key].data.querySelectorAll('.rounded-lg');
                 if (searchcontainer) {
                     // Iterate through the containers
                     searchcontainer.forEach((container) => {
-                        // Select all child elements with the specified class
+                        // Select all child elements that contain the item name
                         const childElements = container.querySelectorAll('.text-xl');
                         if (childElements) {
                             // Iterate through the child elements
@@ -217,11 +218,11 @@ function searchAndDisplay(nameToSearch, colortoSearch, slottoSearch) {
                                 if (nameElement.textContent.trim() === nameToSearch) {
                                     const photoElement = container.querySelector('.mix-blend-screen');
                                     returnobj.image = photoElement.src;
-                                    // Select elements with the specified style attribute
+                                    // Select the table with the prices
                                     var styleElements = container.querySelectorAll('.grid-rows-5');
                                     if (styleElements.length > 0) {
                                         styleElements.forEach((styleElement) => {
-                                            // Select all divs inside styleElement
+                                            // Select all divs inside styleElement, each one is a color
                                             const divprices = styleElement.querySelectorAll('div');
                                             if (divprices) {
                                                 divprices.forEach((divprice, index) => {
