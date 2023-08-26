@@ -7,6 +7,9 @@ function paintFormatter(cell, formatterParams, onRendered) {
 
 function imageFormatter(cell, formatterParams, onRendered) {
     const img = cell.getValue();
+    if (img.startsWith("/_next/image?")) {
+        img = "https://op.market" + img;
+    }
     return `<div style="display: flex; justify-content: center; align-items: center; height: 80px; width: 80px; overflow: hidden;"><img src="${img}" style="max-height: 100%; max-width: 100%;"></div>`;
 }
 
