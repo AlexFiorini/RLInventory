@@ -5,12 +5,33 @@ function paintFormatter(cell, formatterParams, onRendered) {
     return `<div style="background: ${backgroundStyle}; padding: 5px; border-radius: 3px;">${displayValue}</div>`;
 }
 
+var retryCount = 0;
+var maxRetries = 40;
+
 function imageFormatter(cell, formatterParams, onRendered) {
-    const img = cell.getValue();
+    var img = cell.getValue();
     if (img.startsWith("/_next/image?")) {
         img = "https://op.market" + img;
     }
-    return `<div style="display: flex; justify-content: center; align-items: center; height: 80px; width: 80px; overflow: hidden;"><img src="${img}" style="max-height: 100%; max-width: 100%;"></div>`;
+    return `<div style="display: flex; justify-content: center; align-items: center; height: 80px; width: 80px; overflow: hidden;">
+        <img src="${img}" style="max-height: 100%; max-width: 100%;" onload="checkState(this, true);" onerror="checkState(this, false, '${img}');">
+    </div>`;
+}
+
+function checkState(imgElement, isSuccess) {
+    if (!isSuccess) {
+        if (retryCount < maxRetries) {
+            // Retry by incrementing the retryCount and replacing the src with another URL
+            retryCount++;
+            imgElement.src = imgElement.src.replace(".0.webp", ".3.webp");
+        } else {
+            // After reaching the maximum number of retries, switch to an alternative image URL
+            imgElement.src = "https://op.market/_next/static/media/FallbackItemImage.89e7bb87.svg";
+        }
+    } else {
+        retryCount = 0; // Reset the retry count on successful load
+        imgElement.onerror = null; // Remove the error handler to prevent infinite loop
+    }
 }
 
 function getBackgroundStyleForColor(color) {

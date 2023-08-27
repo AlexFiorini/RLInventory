@@ -166,12 +166,12 @@ async function fetchPricesOP() {
         const page = await browser.newPage();
         // Navigate to the page
         await page.goto('https://op.market/en/prices/pc', { waitUntil: 'domcontentloaded' });
-        // Wait for 10 seconds using setTimeout
+        // Wait for set seconds using setTimeout
         await page.evaluate(() => {
             return new Promise(resolve => {
                 setTimeout(() => {
                     resolve();
-                }, 10000);
+                }, 500);
             });
         });
         // Get the HTML content after waiting
