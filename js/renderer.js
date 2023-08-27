@@ -160,30 +160,13 @@ document.getElementById('fileInput').addEventListener('change', async (event) =>
 
 async function fetchPricesOP() {
     try {
-        const browser = await puppeteer.launch({
-            headless: "new"
-        });
-        const page = await browser.newPage();
-        // Navigate to the page
-        await page.goto('https://op.market/en/prices/pc', { waitUntil: 'domcontentloaded' });
-        // Wait for set seconds using setTimeout
-        await page.evaluate(() => {
-            return new Promise(resolve => {
-                setTimeout(() => {
-                    resolve();
-                }, 500);
-            });
-        });
-        // Get the HTML content after waiting
-        var htmlContent = await page.content();
-        await browser.close();
-        htmlContent = htmlContent.replace(/(https:\/\/op\.market)?\/_next/g, (match, capture) => {
-            if (capture) {
-              return match; // If "https://op.market" is already there, don't modify.
-            } else {
-              return 'https://op.market/_next'; // If not, add it.
-            }
-          });
+        const response = await fetch("https://op.market/en/prices/pc");
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        htmlContent = await response.text();
+        // Fix image URLs by adding the domain "https://op.market" before "/_next"
+        htmlContent = htmlContent.replace(/\/_next/g, 'https://op.market/_next');
         // Now you have the HTML content with all images loaded
         setGlobalSearchable(htmlContent);
         return htmlContent;
