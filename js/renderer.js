@@ -117,12 +117,30 @@ function createTable() {
                 item.special_edition = handleNotSE(item.special_edition);
                 const price_image = searchAndDisplay(item.name, item.paint, item.slot);
                 item.price = price_image.price;
-                item.image = price_image.image;     
+                item.image = price_image.image;
                 itemsToAdd.push(item);
             }
         }
         table.setData(itemsToAdd);
     });
+}
+
+function rearrangeName(name) {
+    // Define an array of keywords to check for (OPMarket puts these before the name, idk why)
+    const keywords = ["Inverted", "Infinite", "Holographic"];
+  
+    // Iterate through the keywords
+    for (const keyword of keywords) {
+      if (name.includes(keyword)) {
+        // If the name contains the keyword, rearrange it and return
+        const rearrangedName = `${keyword}: ${name.replace(keyword, "").trim()}`;
+        // Remove the trailing ":"
+        return rearrangedName.replace(/:$/, "");
+      }
+    }
+  
+    // If none of the keywords were found, return the original name
+    return name;
 }
 
 document.getElementById('support').addEventListener('click', function() {
@@ -202,6 +220,7 @@ function searchAndDisplay(nameToSearch, colortoSearch, slottoSearch) {
         image: "https://op.market/_next/static/media/FallbackItemImage.89e7bb87.svg",
         price: "-",
     }
+    nameToSearch=rearrangeName(nameToSearch);
     try {
         for (let key in htmlitems) {
             if (htmlitems[key].term === slottoSearch) {
