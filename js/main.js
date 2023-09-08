@@ -64,6 +64,14 @@ ipcMain.on('json-data', (event, data) => {
     }
 });
 
+ipcMain.on('show-div2', () => {
+    mainWindow.webContents.executeJavaScript(`
+        document.getElementById('loading-div').style.display = 'none';
+        document.getElementById('table').style.display = 'block';
+        document.getElementById('loading-div').style.display = 'none';
+    `);
+});
+
 app.whenReady().then(() => {
     createWindow();
     app.on('activate', function () {

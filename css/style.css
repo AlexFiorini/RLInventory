@@ -11,3 +11,27 @@
 * {
     font-family: Font1, sans-serif;
 }
+
+#loading-image {
+    background-color: #1e1e1e;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#table {
+    display: none;
+}
+
+#spinner {
+    width: 20%;
+}
+
+#loading-progress {
+    position: absolute;
+    left: 0;
+    width: 0;
+    bottom: 20px;
+    height: 10px;
+    background: #FFF;
+}
