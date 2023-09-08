@@ -1,4 +1,5 @@
 const { ipcRenderer } = require('electron');
+const puppeteer = require('puppeteer');
 const supportURL = "https://op.market/ref/thedevilofgames";
 
 let inventory;
@@ -95,6 +96,7 @@ function createTable() {
         layout: "fitDataStretch",
         responsiveLayout: "collapse",
         columns: [
+            { title: "Image", field: "image", headerSort:false, formatter: imageFormatter, resizable: false},
             { title: "Name", field: "name", headerFilter: "input", sorter: "string", resizable: false},
             { title: "Slot", field: "slot", headerFilter: "input", sorter: "string", resizable: false},
             { title: "Paint", field: "paint", headerFilter: "input", sorter: "string", formatter: paintFormatter, resizable: false},
@@ -113,13 +115,32 @@ function createTable() {
                 item.paint = handleNotPainted(item.paint);
                 item.rank_label = handleNotCertificated(item.rank_label);
                 item.special_edition = handleNotSE(item.special_edition);
-                const itemPrice = searchAndDisplay(item.name, item.paint, item.slot);
-                item.price = itemPrice;          
+                const price_image = searchAndDisplay(item.name, item.paint, item.slot);
+                item.price = price_image.price;
+                item.image = price_image.image;
                 itemsToAdd.push(item);
             }
         }
         table.setData(itemsToAdd);
     });
+}
+
+function rearrangeName(name) {
+    // Define an array of keywords to check for (OPMarket puts these before the name, idk why)
+    const keywords = ["Inverted", "Infinite", "Holographic"];
+  
+    // Iterate through the keywords
+    for (const keyword of keywords) {
+      if (name.includes(keyword)) {
+        // If the name contains the keyword, rearrange it and return
+        const rearrangedName = `${keyword}: ${name.replace(keyword, "").trim()}`;
+        // Remove the trailing ":"
+        return rearrangedName.replace(/:$/, "");
+      }
+    }
+  
+    // If none of the keywords were found, return the original name
+    return name;
 }
 
 document.getElementById('support').addEventListener('click', function() {
@@ -157,7 +178,6 @@ document.getElementById('fileInput').addEventListener('change', async (event) =>
 
 async function fetchPricesOP() {
     try {
-        // Fetch the HTML content
         const response = await fetch("https://op.market/en/prices/pc");
         if (!response.ok) {
             throw new Error(`HTTP error! Status: ${response.status}`);
@@ -165,11 +185,12 @@ async function fetchPricesOP() {
         htmlContent = await response.text();
         // Fix image URLs by adding the domain "https://op.market" before "/_next"
         htmlContent = htmlContent.replace(/\/_next/g, 'https://op.market/_next');
+        // Now you have the HTML content with all images loaded
         setGlobalSearchable(htmlContent);
         return htmlContent;
     } catch (error) {
         console.error('Error fetching HTML:', error);
-        // Reject the promise in case of an error
+        // Handle the error as needed
         throw error;
     }
 }
@@ -195,26 +216,33 @@ function setGlobalSearchable(htmlContent) {
 }
 
 function searchAndDisplay(nameToSearch, colortoSearch, slottoSearch) {
-    let price = "-";
+    let returnobj = {
+        image: "https://op.market/_next/static/media/FallbackItemImage.89e7bb87.svg",
+        price: "-",
+    }
+    nameToSearch=rearrangeName(nameToSearch);
     try {
         for (let key in htmlitems) {
             if (htmlitems[key].term === slottoSearch) {
+                // Select all elements that contain info about one item
                 let searchcontainer = htmlitems[key].data.querySelectorAll('.rounded-lg');
                 if (searchcontainer) {
                     // Iterate through the containers
                     searchcontainer.forEach((container) => {
-                        // Select all child elements with the specified class
+                        // Select all child elements that contain the item name
                         const childElements = container.querySelectorAll('.text-xl');
                         if (childElements) {
                             // Iterate through the child elements
                             childElements.forEach((nameElement) => {
                                 // Check if the name matches the one you're looking for
                                 if (nameElement.textContent.trim() === nameToSearch) {
-                                    // Select elements with the specified style attribute
+                                    const photoElement = container.querySelector('.mix-blend-screen');
+                                    returnobj.image = photoElement.src;
+                                    // Select the table with the prices
                                     var styleElements = container.querySelectorAll('.grid-rows-5');
                                     if (styleElements.length > 0) {
                                         styleElements.forEach((styleElement) => {
-                                            // Select all divs inside styleElement
+                                            // Select all divs inside styleElement, each one is a color
                                             const divprices = styleElement.querySelectorAll('div');
                                             if (divprices) {
                                                 divprices.forEach((divprice, index) => {
@@ -222,8 +250,8 @@ function searchAndDisplay(nameToSearch, colortoSearch, slottoSearch) {
                                                         const priceText = divprice.textContent.trim();
                                                         const priceParts = priceText.split('-');
                                                         price = priceParts.length > 0 ? priceParts[0].trim() : "Unknown";
-                                                        //console.log(nameToSearch, colortoSearch, slottoSearch, price);
-                                                        return price;
+                                                        returnobj.price = price;
+                                                        return returnobj;
                                                     }
                                                 });
                                             } else {
@@ -237,7 +265,8 @@ function searchAndDisplay(nameToSearch, colortoSearch, slottoSearch) {
                                             const priceText = styleElements.textContent.trim();
                                             const priceParts = priceText.split('-');
                                             price = priceParts.length > 0 ? priceParts[0].trim() : "Unknown";
-                                            return price;
+                                            returnobj.price = price;
+                                            return returnobj;
                                         } else {
                                             console.log('styleElements is null:', container);
                                         }
@@ -256,5 +285,5 @@ function searchAndDisplay(nameToSearch, colortoSearch, slottoSearch) {
     } catch (error) {
         console.error('Error parsing and searching HTML:', error);
     }
-    return price;
+    return returnobj;
 }
