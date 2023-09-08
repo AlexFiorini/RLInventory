@@ -1,6 +1,7 @@
 const { ipcRenderer } = require('electron');
 const fs = require('fs');
 const path = require('path');
+const fetch = require('node-fetch');
 const supportURL = "https://op.market/ref/thedevilofgames";
 
 let inventory;
@@ -35,17 +36,27 @@ function createTable() {
 
     table.on("tableBuilt", async function(){
         const itemsToAdd = [];
+        const totalItems = inventory.length;
+        let loadedItems = 0;
         for (const item of inventory) {
             if (item.quality !== '' && item.quality !== 'Common') {
                 item.slot = handleDecal(item.slot);
                 item.paint = handleNotPainted(item.paint);
                 item.rank_label = handleNotCertificated(item.rank_label);
                 item.special_edition = handleNotSE(item.special_edition);
-                item.image = searchImage(item.product_id, item.slot);
+                try {
+                    item.image = await searchImage(item.product_id);
+                } catch (error) {
+                    item.image = "https://op.market/_next/static/media/FallbackItemImage.89e7bb87.svg";
+                }
                 itemsToAdd.push(item);
             }
+            loadedItems++;
+            const progress = (loadedItems / totalItems) * 100;
+            updateLoadingProgress(progress);
         }
         table.setData(itemsToAdd);
+        ipcRenderer.send('show-div2');
     });
 }
 
@@ -83,38 +94,25 @@ document.getElementById('fileInput').addEventListener('change', async (event) =>
     reader.readAsText(selectedFile);
 });
 
-function searchImage(item_id) {
-    const projectPath = path.join(__dirname); // Assuming the project folder is in the same directory as your script
+async function searchImage(item_id) {
+    // Construct the URL for the image based on item_id
+    const imageUrl = `https://ik.imagekit.io/2vhnpgodm/Rocket%20League/${item_id}.png`;
 
-    // Check if the specified project folder exists
-    if (!fs.existsSync(projectPath)) {
-        console.log(`Project folder '${projectPath}' does not exist.`);
-        return;
-    }
+    try {
+        // Attempt to fetch the image
+        const response = await fetch(imageUrl);
 
-    const imageDirectoryPath = path.join(projectPath, 'img', 'png_id');
+        // Check if the response status is 200 (OK)
+        if (response.status === 200) {
+            return imageUrl; // Return the URL of the found image
+        }
+    } catch (error) {}
 
-    // Check if the image directory exists
-    if (!fs.existsSync(imageDirectoryPath)) {
-        console.log(`Image directory does not exist.`);
-        return;
-    }
-    // Search for the image in this subfolder
-    const imageFileName = `${item_id}.png`;
-    const imageFilePath = path.join(imageDirectoryPath, imageFileName);
-
-    if (fs.existsSync(imageFilePath) && isImageFile(imageFilePath)) {
-        console.log(`Found image '${imageFileName}'.`);
-        return imageFilePath; // Return the path to the found image
-    }
-
-    console.log(`Image '${item_id}' not found in any subfolder.`);
-    return "https://op.market/_next/static/media/FallbackItemImage.89e7bb87.svg"; // Return base image if the image is not found
+    // Return the fallback image URL if the image is not found or if there was an error
+    return "https://op.market/_next/static/media/FallbackItemImage.89e7bb87.svg";
 }
 
-// Helper function to check if a file is an image (you can customize this as needed)
-function isImageFile(filePath) {
-    const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.svg'];
-    const ext = path.extname(filePath).toLowerCase();
-    return imageExtensions.includes(ext);
+function updateLoadingProgress(progress) {
+    const loadingProgress = document.getElementById("loading-progress");
+    loadingProgress.style.width = `${progress}%`;
 }
