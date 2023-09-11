@@ -24,7 +24,19 @@
 }
 
 #spinner {
+    position: relative;
+    top: 150px;
     width: 20%;
+    animation: spin 3s linear infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
 #loading-progress {

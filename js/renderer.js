@@ -80,8 +80,9 @@ document.getElementById('fileInput').addEventListener('change', async (event) =>
                 table.remove();
                 var newtable = document.createElement("div");
                 newtable.setAttribute("id", "inventory-table");
-                document.body.appendChild(newtable);
+                document.getElementById("table").appendChild(newtable);
                 inventory = parsedDataArray.filter(item => item.tradeable === 'true');
+                ipcRenderer.send('show-div1');
                 createTable();
             } else {
                 console.error('JSON data is not in the expected format.');
