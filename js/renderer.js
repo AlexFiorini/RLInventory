@@ -6,7 +6,7 @@ const supportURL = "https://op.market/ref/thedevilofgames";
 
 let inventory;
 
-// Carica il file JSON
+// Load JSON file
 ipcRenderer.on('json-data', (event, jsonData) => {
     if (Array.isArray(jsonData)) {
         inventory = jsonData.filter(item => item.tradeable === 'true');
@@ -16,7 +16,7 @@ ipcRenderer.on('json-data', (event, jsonData) => {
     }
 });
 
-// Richiedi il file JSON al processo principale
+// Ask JSON file to main process
 ipcRenderer.send('get-json-data');
 
 function createTable() {
