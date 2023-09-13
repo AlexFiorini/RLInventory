@@ -3,7 +3,7 @@
 
 ## Installation
 ### MAKE SURE YOU HAVE BAKKESMOD INSTALLED AND BETTER INVENTORY EXPORT: https://bakkesplugins.com/plugins/view/155
-### Also make sure your bakkesmod folder is in %appdata%/Roaming/bakkesmod/bakkesmod
+### Also make sure your bakkesmod folder is in %appdata%/bakkesmod/bakkesmod
 
 If you prefer to build it yourself: 
 - Clone the repo
