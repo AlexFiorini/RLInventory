@@ -1,6 +1,7 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
 const fs = require('fs');
+const electron = require ('electron');
 require('v8-compile-cache');
 let mainWindow;
 
@@ -89,4 +90,10 @@ app.whenReady().then(() => {
 
 app.on('window-all-closed', function () {
     if (process.platform !== 'darwin') app.quit();
+});
+
+ipcMain.handle('read-user-data', async (event, fileName) => {
+    const path = electron.app.getPath('appData');
+    const buf = path + '\\' + fileName;
+    return buf;
 });
