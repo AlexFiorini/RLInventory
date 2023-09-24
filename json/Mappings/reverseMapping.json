@@ -1,0 +1,55 @@
+{
+  "quality": {
+    "Common": "0",
+    "Uncommon": "1",
+    "Rare": "2",
+    "Very rare": "3",
+    "Import": "4",
+    "Exotic": "5",
+    "Black market": "6",
+    "Premium": "7",
+    "Limited": "8",
+    "Legacy": "9"
+  },
+  "slot": {
+    "Body": "0",
+    "Decal": "1",
+    "Wheels": "2",
+    "Rocket Boost": "3",
+    "Antenna": "4",
+    "Topper": "5",
+    "Paint Finish": "7",
+    "Gift Pack": "11",
+    "Engine Audio": "13",
+    "Trail": "14",
+    "Goal Explosion": "15",
+    "Player Banner": "16",
+    "Avatar Border": "20"
+  },
+  "special": {
+    "Default": "0",
+    "Holographic": "1",
+    "Infinite": "2",
+    "Inverted": "3",
+    "Remixed": "4",
+    "Color Match": "5",
+    "Flare": "6"
+  },
+  "paints": {
+    "Unpainted": "0",
+    "Crimson": "1",
+    "Lime": "2",
+    "Black": "3",
+    "Sky Blue": "4",
+    "Cobalt": "5",
+    "Burnt Sienna": "6",
+    "Forest Green": "7",
+    "Purple": "8",
+    "Pink": "9",
+    "Orange": "10",
+    "Grey": "11",
+    "Titanium White": "12",
+    "Saffron": "13",
+    "Gold": "14"
+  }
+}
