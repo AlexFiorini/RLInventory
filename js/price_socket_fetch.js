@@ -5,7 +5,7 @@ const socket = new WebSocket("wss://api.op.market/api/ws");
 // Function to check the line count of the JSON file
 function checkLineCount() {
   const rl = readline.createInterface({
-    input: fs.createReadStream("output.json"),
+    input: fs.createReadStream("item_prices.json"),
   });
 
   let lineCount = 0;
