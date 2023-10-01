@@ -1,10 +1,8 @@
 const { ipcRenderer } = require('electron');
 const fs = require('fs');
 const path = require('path');
-const app = require('electron');
 const fetch = require('node-fetch');
 const supportURL = "https://op.market/ref/thedevilofgames";
-var firstJsonData;
 const secondJsonPath = path.join(__dirname, './item_prices.json');
 const secondJsonData = JSON.parse(fs.readFileSync(secondJsonPath, 'utf8'));
 
@@ -72,8 +70,6 @@ ipcRenderer.on('json-data', (event, jsonData) => {
         inventory = jsonData.filter(item => item.tradeable === 'true');
         (async () => {
             try {
-                const result = await ipcRenderer.invoke('read-user-data', 'bakkesmod\\bakkesmod\\data\\inventory.json');
-                saveFirstJsonData(result);
                 // Now that ipcRenderer has finished, you can call getPrice safely.
                 createTable()
             } catch (error) {
@@ -101,7 +97,8 @@ function createTable() {
             { title: "Certification", field: "rank_label", headerFilter: "input", sorter: "string", resizable: false},
             { title: "Quality", field: "quality", headerFilter: "input", sorter: customQualitySorter, resizable: false},
             { title: "Special Edition", field: "special_edition", headerFilter: "input", sorter: "string", formatter: specialEditionFormatter, resizable: false},
-            { title: "OPMarket Price", field: "price", headerFilter: "input", sorter: "number", resizable: false}
+            { title: "OPMarket Price", field: "price", headerFilter: "input", sorter: "number", resizable: false},
+            { title: "OPMarket Quantity", field: "quantity", headerFilter: "input", sorter: "number", resizable: false}
         ],
     });
 
@@ -115,17 +112,21 @@ function createTable() {
                 item.paint = handleNotPainted(item.paint);
                 item.rank_label = handleNotCertificated(item.rank_label);
                 item.special_edition = handleNotSE(item.special_edition);
-                try {
-                    item.image = await searchImage(item.product_id);
-                } catch (error) {
-                    item.image = "https://op.market/_next/static/media/FallbackItemImage.89e7bb87.svg";
+                var price_item = getPrice(  item.product_id, 
+                                            qualitymap[item.quality], 
+                                            slotmap[item.slot], 
+                                            specialmap[item.special_edition], 
+                                            paintsmap[item.paint]);
+                item.price = price_item.price;
+                item.quantity = price_item.quantity;
+                if(item.quantity > 0) {
+                    try {
+                        item.image = await searchImage(item.product_id, paintsmap[item.paint]);
+                    } catch (error) {
+                        item.image = "https://op.market/_next/static/media/FallbackItemImage.89e7bb87.svg";
+                    }
+                    itemsToAdd.push(item);
                 }
-                item.price = getPrice(  item.product_id, 
-                                        qualitymap[item.quality], 
-                                        slotmap[item.slot], 
-                                        specialmap[item.special_edition], 
-                                        paintsmap[item.paint]);
-                itemsToAdd.push(item);
             }
             loadedItems++;
             const progress = (loadedItems / totalItems) * 100;
@@ -171,19 +172,35 @@ document.getElementById('fileInput').addEventListener('change', async (event) =>
     reader.readAsText(selectedFile);
 });
 
-async function searchImage(item_id) {
+async function searchImage(item_id, item_paint) {
     // Construct the URL for the image based on item_id
-    const imageUrl = `https://ik.imagekit.io/2vhnpgodm/Rocket%20League/${item_id}.png`;
+    var imageUrl;
+    var imageBackupUrl;
+    if(item_paint != 0) {
+        imageUrl = `https://images.op.market/webp/${item_id}.${item_paint}.webp`;
+        imageBackupUrl = `https://ik.imagekit.io/2vhnpgodm/Rocket%20League/${item_id}.png`;
+    } else {
+        imageUrl = `https://ik.imagekit.io/2vhnpgodm/Rocket%20League/${item_id}.png`;
+    }
 
     try {
         // Attempt to fetch the image
         const response = await fetch(imageUrl);
-
         // Check if the response status is 200 (OK)
         if (response.status === 200) {
             return imageUrl; // Return the URL of the found image
         }
-    } catch (error) {}
+    } catch (error) {
+        try {
+            // Attempt to fetch the image
+            const response = await fetch(imageBackupUrl);
+    
+            // Check if the response status is 200 (OK)
+            if (response.status === 200) {
+                return imageUrl; // Return the URL of the found image
+            }
+        } catch (error) {}
+    }
 
     // Return the fallback image URL if the image is not found or if there was an error
     return "https://op.market/_next/static/media/FallbackItemImage.89e7bb87.svg";
@@ -194,11 +211,11 @@ function updateLoadingProgress(progress) {
     loadingProgress.style.width = `${progress}%`;
 }
 
-function saveFirstJsonData(result) {
-    firstJsonData = JSON.parse(fs.readFileSync(result, 'utf8'));
-}
-
 function getPrice(itemId, qualityId, slotId, specialId, paintId) {
+    var price_status = {
+        price: 0,
+        quantity: 0
+    }
     try {
         for (priceitem in secondJsonData.payload.items) {
             if (
@@ -207,11 +224,12 @@ function getPrice(itemId, qualityId, slotId, specialId, paintId) {
                 secondJsonData.payload.items[priceitem].slot == slotId &&
                 secondJsonData.payload.items[priceitem].special == specialId
             ) {
-                return secondJsonData.payload.items[priceitem].paints[paintId].price;
+                price_status.price = secondJsonData.payload.items[priceitem].paints[paintId].price;
+                price_status.quantity = secondJsonData.payload.items[priceitem].paints[paintId].limit;
             }
         }
     } catch (err) {
         console.error(`Error reading or parsing the JSON file: ${err.message}`);
     }
-    return "0";
+    return price_status;
 }
