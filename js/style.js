@@ -35,7 +35,7 @@ function checkState(imgElement, isSuccess) {
 }
 
 function getBackgroundStyleForColor(color) {
-    return colorBackgrounds[color] || '';
+    return colorBackgrounds[color] || 'none';
 }
 
 const colorBackgrounds = {
