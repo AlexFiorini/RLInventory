@@ -64,6 +64,9 @@ const paintsmap = {
     "Saffron": "13",
     "Gold": "14"
 }
+
+ipcRenderer.send('load-json-inventory');
+
 // Load JSON file
 ipcRenderer.on('json-data', (event, jsonData) => {
     if (Array.isArray(jsonData)) {

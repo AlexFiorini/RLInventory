@@ -5,6 +5,9 @@ const electron = require ('electron');
 require('v8-compile-cache');
 let mainWindow;
 
+const appDataPath = app.getPath('appData'); // Get the application data directory
+const jsonFilePath = path.join(appDataPath, 'bakkesmod/bakkesmod/data/inventory.json');
+
 function createWindow() {
     mainWindow = new BrowserWindow({
         width: 1160,
@@ -21,31 +24,6 @@ function createWindow() {
 
     mainWindow.on('closed', function () {
         mainWindow = null;
-    });
-
-    const appDataPath = app.getPath('appData'); // Get the application data directory
-    const jsonFilePath = path.join(appDataPath, 'bakkesmod/bakkesmod/data/inventory.json');
-    // Read the JSON data from the specified file path
-    fs.readFile(jsonFilePath, 'utf8', (err, jsonData) => {
-        if (err) {
-            console.error('Error reading JSON data:', err);
-            if (err.code === 'ENOENT') {
-                console.error('JSON doesnt exist');
-            }
-        } else {
-            try {
-                const parsedData = JSON.parse(jsonData);
-                if (Array.isArray(parsedData.inventory)) {
-                    mainWindow.webContents.on('did-finish-load', () => {
-                        mainWindow.webContents.send('json-data', parsedData.inventory);
-                    });
-                } else {
-                    console.error('JSON data is not in the expected format.');
-                }
-            } catch (jsonParseError) {
-                console.error('Error parsing JSON data:', jsonParseError);
-            }
-        }
     });
 }
 
@@ -81,11 +59,21 @@ ipcMain.on('show-div2', () => {
     `);
 });
 
+ipcMain.on('load-json-inventory', () => {
+    loadJsonInventory(jsonFilePath);
+});
+
 app.whenReady().then(() => {
     createWindow();
     app.on('activate', function () {
         if (BrowserWindow.getAllWindows().length === 0) createWindow();
     });
+
+    // Watch for changes in the JSON file
+    watchJsonFile(jsonFilePath);
+
+    // Load JSON inventory data initially
+    loadJsonInventory(jsonFilePath);
 });
 
 app.on('window-all-closed', function () {
@@ -97,3 +85,37 @@ ipcMain.handle('read-user-data', async (event, fileName) => {
     const buf = path + '\\' + fileName;
     return buf;
 });
+
+function watchJsonFile(jsonFilePath) {
+    fs.watch(jsonFilePath, (eventType, filename) => {
+        if (eventType === 'change') {
+            // Reload the mainWindow when the JSON file changes
+            mainWindow.reload();
+        }
+    });
+}
+
+function loadJsonInventory(jsonFilePath) {
+    // Read the JSON data from the specified file path
+    fs.readFile(jsonFilePath, 'utf8', (err, jsonData) => {
+        if (err) {
+            console.error('Error reading JSON data:', err);
+            if (err.code === 'ENOENT') {
+                console.error('JSON doesnt exist');
+            }
+        } else {
+            try {
+                const parsedData = JSON.parse(jsonData);
+                if (Array.isArray(parsedData.inventory)) {
+                    mainWindow.webContents.on('did-finish-load', () => {
+                        mainWindow.webContents.send('json-data', parsedData.inventory);
+                    });
+                } else {
+                    console.error('JSON data is not in the expected format.');
+                }
+            } catch (jsonParseError) {
+                console.error('Error parsing JSON data:', jsonParseError);
+            }
+        }
+    });
+}
