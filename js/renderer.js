@@ -122,7 +122,7 @@ function createTable() {
                                             paintsmap[item.paint]);
                 item.price = price_item.price;
                 item.quantity = price_item.quantity;
-                if(item.quantity > 0) {
+                if(item.quantity >= 0) {
                     try {
                         item.image = await searchImage(item.product_id, paintsmap[item.paint]);
                     } catch (error) {
